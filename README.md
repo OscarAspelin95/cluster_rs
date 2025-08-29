@@ -1,2 +1,31 @@
 # cluster_rs
-Experimental read clustering suitable for Nanopore amplicon
+🚧 Work in progress experimental read clustering suitable for Nanopore amplicon.
+
+## Requirements
+- Linux OS (Ubuntu 24.04.2)
+- Rust >= 1.88.0
+
+## Installation
+Clone the repository or download the source code. Enter the cluster_rs directory and run:<br>
+`cargo build --release`
+
+The generated binary is available in `target/release/cluster_rs`.
+
+## Usage
+Run with:<br>
+`cluster_rs --fastq <reads.fastq.gz> --outdir <outdir>`<br>
+
+
+Optional arguments:
+<pre>
+<b>-s/--sketch_size</b> [200].
+
+<b>-k/--kmer_size</b> [9]. Adjust according to error rate.
+
+<b>-w/--window_size</b> [20]. Number of consecutive kmers to choose minimizer from.
+
+<b>-j/--jaccard_distance</b> [0.05]. Min Jaccard distance to consider a read part of a cluster.
+</pre>
+
+## Read preprocessing
+The algorithm is greedy, which means it is a good idea to filter and sort the reads prior (e.g., with [`fastq_rs`](https://github.com/OscarAspelin95/fastq_rs)).
