@@ -17,5 +17,5 @@ pub struct Config {
     pub sketch_size: usize,
     pub kmer_size: usize,
     pub window_size: u16,
-    pub jaccars_distance: f64,
+    pub jaccard_distance: f64,
 }

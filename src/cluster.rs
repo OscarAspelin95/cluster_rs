@@ -6,6 +6,7 @@ use minimizer_iter::iterator::MinimizerIterator;
 use needletail::parse_fastx_file;
 use probminhash::jaccard::compute_probminhash_jaccard;
 use probminhash::probminhasher::ProbMinHash2;
+use std::collections::HashSet;
 use std::fs::{File, create_dir_all};
 use std::io::{BufWriter, Write};
 use std::path::PathBuf;
@@ -27,13 +28,24 @@ fn get_minimizers(seq: &[u8], kmer_size: usize, window_size: u16) -> MinimizerIt
 fn sketch_read(seq: &[u8], cfg: &Config) -> Vec<u64> {
     let mut pmh = ProbMinHash2::<u64, FxHasher>::new(cfg.sketch_size, u64::MAX);
 
+    let mut hmap: HashSet<u64> =
+        HashSet::with_capacity(seq.len() - cfg.kmer_size - cfg.window_size as usize + 2);
+
     for (hash, _) in get_minimizers(seq, cfg.kmer_size, cfg.window_size) {
+        if hmap.contains(&hash) {
+            continue;
+        }
         pmh.hash_item(hash, 1.0);
+        hmap.insert(hash);
     }
 
     pmh.get_signature().to_owned()
 }
 
+/// * Consider replacing probminhash crate with manual implementation
+/// to regain more control over clustering.
+///
+/// * Consider testing a global/semi-global aligner instead of minimizers.
 pub fn cluster(fastq: &PathBuf, cfg: &Config, outdir: &PathBuf) -> Result<()> {
     if !outdir.is_dir() {
         create_dir_all(&outdir)?;
@@ -52,8 +64,16 @@ pub fn cluster(fastq: &PathBuf, cfg: &Config, outdir: &PathBuf) -> Result<()> {
             Err(_) => continue,
         };
 
+        let seq = record.seq();
+
+        // Minimum length to accomodate w consecutive kmers.
+        let required_length: usize = cfg.window_size as usize + cfg.kmer_size - 1;
+        if seq.len() < required_length {
+            continue;
+        }
+
         // MinHash sketch for read.
-        let read_sketch = sketch_read(&record.seq(), &cfg);
+        let read_sketch = sketch_read(&seq, &cfg);
 
         // Check if read belongs to an already existing cluster.
         let mut assigned: bool = false;
@@ -63,16 +83,17 @@ pub fn cluster(fastq: &PathBuf, cfg: &Config, outdir: &PathBuf) -> Result<()> {
                 compute_probminhash_jaccard(&read_sketch[..], &cluster_sketch[..]);
 
             // Read belongs to an existing cluster.
-            if jaccard_distance >= cfg.jaccars_distance {
+            if jaccard_distance >= cfg.jaccard_distance {
                 *cluster_members += 1;
                 assigned = true;
                 break;
             }
         }
 
-        // New cluster with one new member.
+        // Initialize new cluster.
         if !assigned {
             clusters.push((clusters.len() + 1, read_sketch, 1));
+
             let representative_file =
                 file_path!(&outdir, format!("cluster_{}.fastq", clusters.len()));
 
