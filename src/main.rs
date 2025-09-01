@@ -24,7 +24,7 @@ fn main() {
         sketch_size: args.sketch_size,
         kmer_size: args.kmer_size,
         window_size: args.window_size,
-        jaccars_distance: args.jaccard_distance,
+        jaccard_distance: args.jaccard_distance,
     };
 
     cluster(&args.fastq, &cfg, &args.outdir).unwrap();

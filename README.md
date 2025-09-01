@@ -1,5 +1,5 @@
 # cluster_rs
-🚧 Work in progress experimental read clustering suitable for Nanopore amplicon.
+🚧 Work in progress experimental read clustering tool suitable for Nanopore amplicon samples. Uses a sketch based minimizer approach along with Weighted Jaccard Index for calculating similarities between reads.
 
 ## Requirements
 - Linux OS (Ubuntu 24.04.2)
@@ -20,11 +20,11 @@ Optional arguments:
 <pre>
 <b>-s/--sketch_size</b> [200].
 
-<b>-k/--kmer_size</b> [9]. Adjust according to error rate.
+<b>-k/--kmer_size</b> [15]. Adjust according to error rate.
 
-<b>-w/--window_size</b> [20]. Number of consecutive kmers to choose minimizer from.
+<b>-w/--window_size</b> [30]. Number of consecutive kmers to choose minimizer from.
 
-<b>-j/--jaccard_distance</b> [0.05]. Min Jaccard distance to consider a read part of a cluster.
+<b>-j/--jaccard_distance</b> [0.1]. Min Jaccard distance to consider a read part of a cluster.
 </pre>
 
 ## Read preprocessing
