@@ -25,6 +25,9 @@ fn get_minimizers(seq: &[u8], kmer_size: usize, window_size: u16) -> MinimizerIt
     minimizer_iterator
 }
 
+/// Consider how minimizer counts should affect the weights.
+/// * Low minimizer duplicity means rare.
+/// * High minimizer duplicity means common.
 fn sketch_read(seq: &[u8], cfg: &Config) -> Vec<u64> {
     let mut pmh = ProbMinHash2::<u64, FxHasher>::new(cfg.sketch_size, u64::MAX);
 

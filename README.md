@@ -1,5 +1,7 @@
 # cluster_rs
-🚧 Work in progress experimental read clustering tool suitable for Nanopore amplicon samples. Uses a sketch based minimizer approach along with Weighted Jaccard Index for calculating similarities between reads.
+🚧 Work in progress experimental read clustering tool suitable for Nanopore amplicon samples. Uses a sketch based minimizer approach along with Jaccard Index for calculating similarities between reads.
+
+Minimizers are currently unweighted, but the plan is to support weighted minimizers in the future.
 
 ## Requirements
 - Linux OS (Ubuntu 24.04.2)
